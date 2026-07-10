@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliPlate - AI-Powered ANPR & Traffic Analytics</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M14 40 L18 28 Q19.5 24 24 24 L40 24 Q44.5 24 46 28 L50 40 Z' fill='white'/%3E%3Crect x='10' y='38' width='44' height='10' rx='4' fill='white'/%3E%3Ccircle cx='20' cy='48' r='4.5' fill='%232563eb'/%3E%3Ccircle cx='44' cy='48' r='4.5' fill='%232563eb'/%3E%3Crect x='22' y='41' width='20' height='4' rx='1' fill='%232563eb'/%3E%3Cline x1='8' y1='20' x2='56' y2='20' stroke='%2360a5fa' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Advanced Effects (CSS) -->
+    <style>
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .laser-line {
+            animation: scan 2.5s linear infinite;
+        }
+        @keyframes border-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-gradient-bg {
+            background: linear-gradient(-45deg, #3b82f6, #10b981, #8b5cf6, #ec4899, #3b82f6);
+            background-size: 400% 400%;
+            animation: border-gradient 6s ease infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-6 antialiased relative overflow-x-hidden"
+      style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M40 0H0v40h40V0z' fill='none'/%3E%3Cpath d='M0 40h40V0M0 0h40' fill='none' stroke='rgba(148,163,184,0.18)' stroke-width='1.2'/%3E%3C/svg%3E&quot;);">
+
+    <!-- Outermost Colorful Card with Moving Neon Fluid Borders -->
+    <div class="max-w-4xl w-full rounded-3xl p-[3px] animated-gradient-bg shadow-[0_30px_60px_rgba(59,130,246,0.2)] transition-all duration-500 hover:shadow-[0_30px_70px_rgba(59,130,246,0.3)] relative z-10">
+        
+        <!-- Main Dashboard Split Layout -->
+        <div class="bg-white/95 backdrop-blur-xl rounded-[21px] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Left & Middle: Scanning Control Area -->
+            <div class="md:col-span-2 flex flex-col justify-between">
+                <div>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                        <div>
+                            <h2 class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                                <span class="flex h-3 w-3 relative">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                                </span>
+                                IntelliPlate
+                            </h2>
+                            <!-- FRONTEND BRANDING WITH GITHUB LINK -->
+                            <p class="text-xs text-slate-400 mt-0.5 font-medium flex items-center gap-1">
+                                <i class="fa-solid fa-code text-blue-500 text-[10px]"></i> Developed by 
+                                <a href="https://github.com/ayushxdev01" target="_blank" class="text-blue-600 hover:text-blue-700 hover:underline inline-flex items-center gap-0.5 font-semibold transition-all">
+                                    Ayush Gupta <i class="fa-brands fa-github text-[11px] ml-0.5 text-slate-600"></i>
+                                </a>
+                            </p>
+                        </div>
+                        
+                        <!-- Mini System Status Pill -->
+                        <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                            <span id="statusIndicator" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span id="statusText" class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Camera Init</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabs Menu -->
+                    <div class="flex p-1 bg-slate-100 rounded-xl mb-5 border border-slate-200/60 max-w-sm">
+                        <button onclick="switchTab('webcam-tab')" id="btn-webcam" class="flex-1 py-2 text-xs font-bold text-center rounded-lg bg-white text-blue-600 shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-camera"></i> Live Feed
+                        </button>
+                        <button onclick="switchTab('video-tab')" id="btn-video" class="flex-1 py-2 text-xs font-bold text-center rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-clapperboard"></i> File Analytics
+                        </button>
+                        <button onclick="switchTab('history-tab')" id="btn-history" class="flex-1 py-2 text-xs font-bold text-center rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-chart-line"></i> Dashboard
+                        </button>
+                    </div>
+
+                    <!-- Display Containers -->
+                    <div id="displayBox" class="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 aspect-video shadow-inner group">
+                        
+                        <!-- Tab 1: Webcam Area -->
+                        <div id="webcam-tab" class="tab-content w-full h-full relative">
+                            <video id="webcam" autoplay playsinline class="w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.01]"></video>
+                            <canvas id="hiddenCanvas" class="hidden"></canvas>
+                            
+                            <!-- Sci-Fi Laser Scanning Line Effect -->
+                            <div class="laser-line absolute left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_12px_#3b82f6] pointer-events-none"></div>
+                            
+                            <!-- Corner UI Reticles -->
+                            <div class="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-blue-400/80"></div>
+                            <div class="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-blue-400/80"></div>
+                            <div class="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-blue-400/80"></div>
+                            <div class="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-blue-400/80"></div>
+                        </div>
+
+                        <!-- Tab 2: Video/Image Drag-Drop Area -->
+                        <div id="video-tab" class="tab-content hidden w-full h-full flex flex-col items-center justify-center bg-slate-50/40 p-6 relative group/drop transition-all">
+                            <input type="file" id="videoInput" accept="video/*,image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect(event)">
+                            <div class="p-4 bg-white rounded-2xl shadow-sm border border-slate-200 transition-transform duration-300 group-hover/drop:scale-110 group-hover/drop:border-blue-400">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500"></i>
+                            </div>
+                            <p id="videoUploadText" class="text-xs font-semibold text-slate-600 mt-3">Drop vehicle video or photo here or click to open</p>
+                            <p id="selectedVideoName" class="mt-2 text-xs font-mono font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 hidden"></p>
+                            
+                            <button id="processVideoBtn" onclick="processSelectedFile()" class="mt-4 relative z-20 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-lg transition transform active:scale-95 hidden">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> <span id="processBtnLabel">Process Recording</span>
+                            </button>
+                        </div>
+
+                        <!-- Tab 3: History / Analytics Dashboard -->
+                        <div id="history-tab" class="tab-content hidden w-full h-full flex flex-col p-4 overflow-y-auto">
+                            <!-- Stat cards -->
+                            <div class="grid grid-cols-4 gap-2 mb-3 flex-shrink-0">
+                                <div class="bg-blue-50 border border-blue-100 rounded-lg p-2 text-center">
+                                    <div id="statVehiclesToday" class="text-lg font-black text-blue-700">--</div>
+                                    <div class="text-[9px] font-bold text-blue-400 uppercase tracking-wide">Today</div>
+                                </div>
+                                <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-2 text-center">
+                                    <div id="statUniqueToday" class="text-lg font-black text-emerald-700">--</div>
+                                    <div class="text-[9px] font-bold text-emerald-400 uppercase tracking-wide">Unique Today</div>
+                                </div>
+                                <div class="bg-purple-50 border border-purple-100 rounded-lg p-2 text-center">
+                                    <div id="statPeakHour" class="text-lg font-black text-purple-700">--</div>
+                                    <div class="text-[9px] font-bold text-purple-400 uppercase tracking-wide">Peak Hour</div>
+                                </div>
+                                <div class="bg-amber-50 border border-amber-100 rounded-lg p-2 text-center">
+                                    <div id="statTopVehicle" class="text-sm font-black text-amber-700 truncate">--</div>
+                                    <div class="text-[9px] font-bold text-amber-400 uppercase tracking-wide">Most Frequent</div>
+                                </div>
+                            </div>
+
+                            <!-- Search -->
+                            <div class="flex gap-2 mb-2 flex-shrink-0">
+                                <input id="historySearchInput" type="text" placeholder="Search plate number..." class="flex-1 text-xs px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-400" onkeydown="if(event.key==='Enter') loadDashboard()">
+                                <button onclick="loadDashboard()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 rounded-lg transition">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                                <button onclick="deleteAllRecords()" title="Delete ALL detection history" class="text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 rounded-lg transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-trash-can"></i> Delete All
+                                </button>
+                            </div>
+
+                            <!-- History table -->
+                            <div class="flex-1 overflow-y-auto border border-slate-200 rounded-lg">
+                                <table class="w-full text-xs">
+                                    <thead class="bg-slate-50 sticky top-0">
+                                        <tr class="text-left text-slate-500 uppercase text-[9px] tracking-wide">
+                                            <th class="px-2 py-1.5">Time</th>
+                                            <th class="px-2 py-1.5">Plate</th>
+                                            <th class="px-2 py-1.5">Type</th>
+                                            <th class="px-2 py-1.5">Conf.</th>
+                                            <th class="px-2 py-1.5">Src</th>
+                                            <th class="px-2 py-1.5"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyTableBody">
+                                        <tr><td colspan="6" class="text-center text-slate-400 py-4 italic">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live OCR Trigger Box -->
+                <div class="mt-4 p-4 bg-gradient-to-r from-slate-50 to-blue-50/30 rounded-xl border border-slate-200/80 flex justify-between items-center">
+                    <span class="text-xs font-bold tracking-wider text-slate-400 uppercase">Real-time Recognition Buffer</span>
+                    <div id="liveTarget" class="text-lg font-black font-mono tracking-widest text-slate-800 bg-white px-4 py-1.5 rounded-lg border border-slate-200 shadow-sm transition-all duration-300">
+                        ---
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar: Live Logs Grid Feed with Background & Download -->
+            <div class="border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-6 flex flex-col justify-between">
+                <div class="h-full flex flex-col">
+                    <!-- Sidebar Header with Export Button -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-emerald-500"></i> Activity Log
+                        </h3>
+                        <button onclick="downloadSessionCSV()" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    
+                    <!-- Scrollable Log Area with Static Vector Grid Template -->
+                    <div class="border border-slate-200/70 bg-slate-50/70 rounded-2xl p-3 flex-1 min-h-[300px] max-h-[340px] overflow-y-auto relative"
+                         style="background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px); background-size: 14px 14px;">
+                        
+                        <!-- Subtle Background Watermark Logo -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none z-0">
+                            <i class="fa-solid fa-shield-cat text-9xl"></i>
+                        </div>
+                        
+                        <!-- Dynamic Logs Feed Container -->
+                        <div id="logContainer" class="space-y-2.5 relative z-10">
+                            <div class="text-center py-16 text-xs text-slate-400 font-medium italic">
+                                Waiting for vehicle scans...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('hiddenCanvas');
+        const statusText = document.getElementById('statusText');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const liveTarget = document.getElementById('liveTarget');
+        const logContainer = document.getElementById('logContainer');
+        
+        let webcamInterval = null;
+        let streamRef = null;
+        let loggedPlates = [];
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            const btnWebcam = document.getElementById('btn-webcam');
+            const btnVideo = document.getElementById('btn-video');
+            const btnHistory = document.getElementById('btn-history');
+            const displayBox = document.getElementById('displayBox');
+            const activeClass = "flex-1 py-2 text-xs font-bold text-center rounded-lg bg-white text-blue-600 shadow-sm transition-all duration-300 cursor-pointer flex items-center justify-center gap-2";
+            const inactiveClass = "flex-1 py-2 text-xs font-bold text-center rounded-lg text-slate-500 hover:text-slate-900 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2";
+
+            btnWebcam.className = tabId === 'webcam-tab' ? activeClass : inactiveClass;
+            btnVideo.className = tabId === 'video-tab' ? activeClass : inactiveClass;
+            btnHistory.className = tabId === 'history-tab' ? activeClass : inactiveClass;
+
+            if (tabId === 'webcam-tab') {
+                displayBox.className = "relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 aspect-video shadow-inner group";
+                startWebcam();
+            } else if (tabId === 'video-tab') {
+                displayBox.className = "relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 aspect-video shadow-inner group";
+                stopWebcam();
+                updateStatus("Awaiting File", "bg-amber-400");
+            } else if (tabId === 'history-tab') {
+                displayBox.className = "relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-inner";
+                stopWebcam();
+                updateStatus("Dashboard", "bg-blue-500");
+                loadDashboard();
+            }
+        }
+
+        function updateStatus(text, colorClass) {
+            statusText.innerText = text;
+            statusIndicator.className = `w-2 h-2 rounded-full ${colorClass}`;
+        }
+
+        function appendLog(plate, confidence, vehicleType) {
+            if (logContainer.querySelector('italic')) logContainer.innerHTML = '';
+            
+            const timestamp = new Date().toLocaleString();
+            const timeStr = new Date().toLocaleTimeString();
+            
+            loggedPlates.unshift({ plate: plate, timestamp: timestamp });
+
+            const confBadge = (confidence !== undefined && confidence !== null)
+                ? `${confidence}%` : "--";
+            const vehicleLabel = vehicleType && vehicleType !== "Unknown" ? vehicleType : null;
+
+            const logItem = document.createElement('div');
+            logItem.className = "bg-white border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between shadow-sm transform scale-95 opacity-0 transition-all duration-300 ease-out translate-y-2";
+            logItem.innerHTML = `
+                <div>
+                    <div class="text-[13px] font-bold font-mono text-slate-700 tracking-wide">${plate}</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1.5">
+                        <span><i class="fa-regular fa-clock mr-1"></i>${timeStr}</span>
+                        ${vehicleLabel ? `<span class="text-slate-300">|</span><span>${vehicleLabel}</span>` : ""}
+                    </div>
+                </div>
+                <span class="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
+                    <i class="fa-solid fa-check text-[8px]"></i> OCR ${confBadge}
+                </span>
+            `;
+            logContainer.prepend(logItem);
+            
+            setTimeout(() => {
+                logItem.className = "bg-white border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between shadow-sm transform scale-100 opacity-100 transition-all duration-300";
+            }, 50);
+        }
+
+        function appendReviewLog(rawText, confidence, vehicleType) {
+            // For plates that were detected but didn't confidently match
+            // the Indian plate format - shown so nothing gets silently
+            // lost, styled differently (amber) so it's clearly "needs a
+            // human look", not a confirmed reading.
+            if (logContainer.querySelector('italic')) logContainer.innerHTML = '';
+
+            const timeStr = new Date().toLocaleTimeString();
+            const vehicleLabel = vehicleType && vehicleType !== "Unknown" ? vehicleType : null;
+
+            const logItem = document.createElement('div');
+            logItem.className = "bg-amber-50/60 border border-amber-200 rounded-xl p-2.5 flex items-center justify-between shadow-sm transform scale-95 opacity-0 transition-all duration-300 ease-out translate-y-2";
+            logItem.innerHTML = `
+                <div>
+                    <div class="text-[13px] font-bold font-mono text-amber-700 tracking-wide">${rawText}</div>
+                    <div class="text-[10px] text-amber-500 mt-0.5 flex items-center gap-1.5">
+                        <span><i class="fa-regular fa-clock mr-1"></i>${timeStr}</span>
+                        ${vehicleLabel ? `<span class="text-amber-300">|</span><span>${vehicleLabel}</span>` : ""}
+                    </div>
+                </div>
+                <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation text-[8px]"></i> REVIEW
+                </span>
+            `;
+            logContainer.prepend(logItem);
+
+            setTimeout(() => {
+                logItem.className = "bg-amber-50/60 border border-amber-200 rounded-xl p-2.5 flex items-center justify-between shadow-sm transform scale-100 opacity-100 transition-all duration-300";
+            }, 50);
+        }
+
+        function downloadSessionCSV() {
+            // Pulls the full detection log (with confidence, vehicle type,
+            // image links, etc.) straight from the backend database,
+            // instead of only whatever plates happen to be in this
+            // browser tab's memory.
+            window.location.href = '/export-csv';
+        }
+
+        async function startWebcam() {
+            if (webcamInterval) return;
+            try {
+                streamRef = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = streamRef;
+                updateStatus("Live Processing", "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]");
+                webcamInterval = setInterval(captureAndSendFrame, 2000);
+            } catch (err) {
+                updateStatus("Cam Denied", "bg-rose-500");
+            }
+        }
+
+        function stopWebcam() {
+            if (webcamInterval) { clearInterval(webcamInterval); webcamInterval = null; }
+            if (streamRef) { streamRef.getTracks().forEach(track => track.stop()); streamRef = null; }
+            video.srcObject = null;
+        }
+
+        async function captureAndSendFrame() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append("file", blob, "frame.jpg");
+                    try {
+                        const response = await fetch('/scan/', { method: 'POST', body: formData });
+                        const data = await response.json();
+                        if (data.success) {
+                            liveTarget.innerText = data.plate_number;
+                            liveTarget.className = "text-lg font-black font-mono tracking-widest text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-lg border border-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]";
+                            setTimeout(() => {
+                                liveTarget.className = "text-lg font-black font-mono tracking-widest text-slate-800 bg-white px-4 py-1.5 rounded-lg border border-slate-200 shadow-sm";
+                            }, 1000);
+                            
+                            const matchExists = loggedPlates.some(el => el.plate === data.plate_number);
+                            if (!matchExists) {
+                                appendLog(data.plate_number, data.confidence, data.vehicle_type);
+                            }
+                        }
+                    } catch (error) { console.error(error); }
+                }, 'image/jpeg');
+            }
+        }
+
+        let selectedFileType = null; // "image" or "video"
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.type.startsWith('image/')) {
+                selectedFileType = 'image';
+                document.getElementById('processBtnLabel').innerText = 'Process Image';
+            } else if (file.type.startsWith('video/')) {
+                selectedFileType = 'video';
+                document.getElementById('processBtnLabel').innerText = 'Process Recording';
+            } else {
+                alert('Please select a video or image file.');
+                return;
+            }
+
+            document.getElementById('selectedVideoName').innerText = `📄 ${file.name}`;
+            document.getElementById('selectedVideoName').classList.remove('hidden');
+            document.getElementById('processVideoBtn').classList.remove('hidden');
+            document.getElementById('videoUploadText').classList.add('hidden');
+            updateStatus("File Loaded", "bg-blue-500");
+        }
+
+        function processSelectedFile() {
+            if (selectedFileType === 'image') {
+                uploadAndProcessImage();
+            } else {
+                uploadAndProcessVideo();
+            }
+        }
+
+        async function uploadAndProcessImage() {
+            const videoInput = document.getElementById('videoInput');
+            if (videoInput.files.length === 0) return;
+
+            updateStatus("AI Analyzing...", "bg-blue-500");
+            liveTarget.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-sm text-blue-500"></i>`;
+
+            const formData = new FormData();
+            formData.append("file", videoInput.files[0]);
+
+            try {
+                const response = await fetch('/scan/', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatus("Scan Complete", "bg-emerald-500");
+                    liveTarget.innerText = data.plate_number;
+                    const matchExists = loggedPlates.some(el => el.plate === data.plate_number);
+                    if (!matchExists) {
+                        appendLog(data.plate_number, data.confidence, data.vehicle_type);
+                    }
+                } else {
+                    updateStatus("Scan Complete", "bg-amber-500");
+                    liveTarget.innerText = "NONE";
+                    // Not a hard error - just nothing valid found. Show the
+                    // raw OCR guess (if any) so it's not a silent black box.
+                    if (data.raw_ocr_text) {
+                        appendReviewLog(data.raw_ocr_text, data.confidence, null);
+                    }
+                }
+            } catch (error) {
+                updateStatus("Server Error", "bg-rose-500");
+                liveTarget.innerText = "FAILED";
+            }
+        }
+
+        async function uploadAndProcessVideo() {
+            const videoInput = document.getElementById('videoInput');
+            if (videoInput.files.length === 0) return;
+
+            updateStatus("AI Analyzing...", "bg-blue-500");
+            liveTarget.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-sm text-blue-500"></i>`;
+
+            const formData = new FormData();
+            formData.append("file", videoInput.files[0]);
+
+            try {
+                const response = await fetch('/upload-video/', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatus("Scan Complete", "bg-emerald-500");
+                    liveTarget.innerText = data.detected_plates.length > 0 ? "SUCCESS" : "NONE";
+                    if (data.detected_plates.length > 0) {
+                        data.detected_plates.forEach(item => {
+                            const matchExists = loggedPlates.some(el => el.plate === item.plate);
+                            if (!matchExists) {
+                                appendLog(item.plate, item.confidence, item.vehicle_type);
+                            }
+                        });
+                    }
+                    if (data.needs_review && data.needs_review.length > 0) {
+                        data.needs_review.forEach(item => {
+                            appendReviewLog(item.raw_ocr_text, item.confidence, item.vehicle_type);
+                        });
+                    }
+                } else {
+                    updateStatus("Pipeline Error", "bg-rose-500");
+                    liveTarget.innerText = "FAILED";
+                }
+            } catch (error) {
+                updateStatus("Server Error", "bg-rose-500");
+            }
+        }
+
+        async function deleteAllRecords() {
+            const confirmation = prompt(
+                "⚠️ This will PERMANENTLY delete ALL detection history and saved images. This cannot be undone.\n\nType DELETE (all caps) to confirm:"
+            );
+
+            if (confirmation === null) return; // user cancelled
+            if (confirmation !== "DELETE") {
+                alert('Confirmation text did not match "DELETE" - nothing was deleted.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/records/all', { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    loadDashboard();
+                } else {
+                    alert('Could not delete records: ' + (data.message || 'unknown error'));
+                }
+            } catch (e) {
+                alert('Failed to delete records - check the server is running.');
+            }
+        }
+
+        async function deleteRecord(recordId) {
+            if (!confirm('Delete this detection record? This cannot be undone.')) return;
+
+            try {
+                const res = await fetch(`/record/${recordId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    loadDashboard();
+                } else {
+                    alert('Could not delete record: ' + (data.message || 'unknown error'));
+                }
+            } catch (e) {
+                alert('Failed to delete record - check the server is running.');
+            }
+        }
+
+        async function loadDashboard() {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-slate-400 py-4 italic">Loading...</td></tr>`;
+
+            try {
+                const analyticsRes = await fetch('/analytics');
+                const analytics = await analyticsRes.json();
+                if (analytics.success) {
+                    document.getElementById('statVehiclesToday').innerText = analytics.vehicles_today;
+                    document.getElementById('statUniqueToday').innerText = analytics.unique_vehicles_today;
+                    document.getElementById('statPeakHour').innerText = analytics.peak_hour || '--';
+                    document.getElementById('statTopVehicle').innerText = analytics.most_frequent_vehicle ? analytics.most_frequent_vehicle.plate : '--';
+                }
+            } catch (e) {
+                console.error('Analytics load failed', e);
+            }
+
+            try {
+                const search = document.getElementById('historySearchInput').value.trim();
+                const url = search ? `/history?search=${encodeURIComponent(search)}&limit=50` : `/history?limit=50`;
+                const historyRes = await fetch(url);
+                const history = await historyRes.json();
+
+                if (!history.success || history.results.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-slate-400 py-4 italic">No detections yet</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = history.results.map(row => {
+                    const timeStr = row.timestamp ? row.timestamp.split(' ')[1] || row.timestamp : '--';
+                    const confStr = (row.confidence !== null && row.confidence !== undefined) ? `${row.confidence}%` : 'N/A';
+                    const imgLink = row.image_url
+                        ? `<a href="${row.image_url}" target="_blank" class="text-blue-500 hover:underline"><i class="fa-solid fa-image"></i></a>`
+                        : '';
+                    return `
+                        <tr class="border-t border-slate-100 hover:bg-slate-50">
+                            <td class="px-2 py-1.5 text-slate-500">${timeStr}</td>
+                            <td class="px-2 py-1.5 font-mono font-bold text-slate-700">${row.plate} ${imgLink}</td>
+                            <td class="px-2 py-1.5 text-slate-500">${row.vehicle_type || 'Unknown'}</td>
+                            <td class="px-2 py-1.5 text-slate-500">${confStr}</td>
+                            <td class="px-2 py-1.5 text-slate-400 uppercase text-[10px]">${row.source || '--'}</td>
+                            <td class="px-2 py-1.5 text-right">
+                                <button onclick="deleteRecord(${row.id})" title="Delete this record" class="text-slate-300 hover:text-rose-500 transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-rose-400 py-4 italic">Failed to load history</td></tr>`;
+            }
+        }
+
+        window.addEventListener("load", startWebcam);
+    </script>
+</body>
+</html>
