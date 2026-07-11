@@ -26,7 +26,9 @@ Built for Indian vehicle plates — live webcam, image, and video ANPR with a re
 
 <!-- ![IntelliPlate Dashboard](docs/demo.gif) -->
 
-**🔗 Live Demo:** _add your deployed Render/Railway URL here after deploying_
+**🔗 Live Demo:** [intelliplate-automatic-number-plate.onrender.com](https://intelliplate-automatic-number-plate.onrender.com/)
+
+> Note: hosted on Render's free tier — the app may take 30-60 seconds to wake up on the first request after a period of inactivity (cold start).
 
 </div>
 
