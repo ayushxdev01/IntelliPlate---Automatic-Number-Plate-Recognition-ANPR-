@@ -30,9 +30,8 @@
 ## 📸 Demo
 
 <div align="center">
-<i>Add a screenshot or GIF of the dashboard here — recruiters/visitors judge a project by this section first.</i>
 
-<!-- ![IntelliPlate Dashboard](docs/demo.gif) -->
+![IntelliPlate Dashboard](Demo.png)
 
 > ⏳ Hosted on Render's free tier — first request after inactivity may take 30-60s to wake up (cold start).
 
