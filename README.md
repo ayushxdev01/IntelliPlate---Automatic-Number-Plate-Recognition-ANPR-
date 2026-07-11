@@ -1,19 +1,27 @@
 <div align="center">
 
-# 🚗 IntelliPlate
+![header](https://capsule-render.vercel.app/api?type=waving&color=timeGradient&height=180&section=header&text=IntelliPlate&fontSize=55&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=AI-Powered%20Automatic%20Number%20Plate%20Recognition&descAlignY=58&descSize=18)
 
-**AI-Powered Automatic Number Plate Recognition & Traffic Analytics Platform**
+<a href="https://intelliplate-automatic-number-plate.onrender.com/">
+  <img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&size=22&pause=1000&color=2563EB&center=true&vCenter=true&width=600&lines=Live+Webcam+%2B+Image+%2B+Video+ANPR;Vehicle+Type+Classification+(YOLOv8);Format-Aware+OCR+Correction;Real-Time+Analytics+Dashboard" alt="Typing SVG" />
+</a>
 
-Built for Indian vehicle plates — live webcam, image, and video ANPR with a real-time analytics dashboard.
+<br>
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)
 ![OpenCV](https://img.shields.io/badge/OpenCV-ComputerVision-5C3EE8?logo=opencv&logoColor=white)
 ![Tesseract](https://img.shields.io/badge/Tesseract-OCR-4285F4)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-VehicleDetection-purple)
+![Docker](https://img.shields.io/badge/Docker-Deployed-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [How It Works](#-how-plate-detection-works) • [Limitations](#-known-limitations) • [Setup](#-setup) • [Roadmap](#-possible-next-steps)
+![Visitors](https://komarev.com/ghpvc/?username=ayushxdev01&label=Repo%20Views&color=2563eb&style=flat)
+![Last Commit](https://img.shields.io/github/last-commit/ayushxdev01/IntelliPlate---Automatic-Number-Plate-Recognition-ANPR-?color=2563eb)
+![Stars](https://img.shields.io/github/stars/ayushxdev01/IntelliPlate---Automatic-Number-Plate-Recognition-ANPR-?style=social)
+
+**[🔗 Live Demo](https://intelliplate-automatic-number-plate.onrender.com/)** &nbsp;•&nbsp;
+[Features](#-features) &nbsp;•&nbsp; [Tech Stack](#-tech-stack) &nbsp;•&nbsp; [How It Works](#-how-plate-detection-works) &nbsp;•&nbsp; [Limitations](#-known-limitations) &nbsp;•&nbsp; [Setup](#-setup)
 
 </div>
 
@@ -26,9 +34,7 @@ Built for Indian vehicle plates — live webcam, image, and video ANPR with a re
 
 <!-- ![IntelliPlate Dashboard](docs/demo.gif) -->
 
-**🔗 Live Demo:** [intelliplate-automatic-number-plate.onrender.com](https://intelliplate-automatic-number-plate.onrender.com/)
-
-> Note: hosted on Render's free tier — the app may take 30-60 seconds to wake up on the first request after a period of inactivity (cold start).
+> ⏳ Hosted on Render's free tier — first request after inactivity may take 30-60s to wake up (cold start).
 
 </div>
 
@@ -55,6 +61,12 @@ Built for Indian vehicle plates — live webcam, image, and video ANPR with a re
 
 ## 🛠 Tech Stack
 
+<div align="center">
+
+<img src="https://skillicons.dev/icons?i=python,fastapi,opencv,docker,html,js,tailwind,sqlite" alt="Tech Stack Icons" />
+
+</div>
+
 | Layer | Tech |
 |---|---|
 | Backend | FastAPI, Uvicorn |
@@ -63,7 +75,7 @@ Built for Indian vehicle plates — live webcam, image, and video ANPR with a re
 | Vehicle classification | YOLOv8n (Ultralytics), pretrained on COCO |
 | Storage | SQLite + local filesystem for images |
 | Frontend | Vanilla JS, Tailwind CSS |
-| Deployment | Docker |
+| Deployment | Docker (Render) |
 
 ---
 
@@ -87,7 +99,7 @@ Frame → Grayscale (plain + CLAHE-enhanced) → Canny edges → Contours
 ## ⚠️ Known Limitations
 
 <details>
-<summary><b>Click to expand — honest limitations, not hidden</b></summary>
+<summary><b>🔽 Click to expand — honest limitations, not hidden</b></summary>
 <br>
 
 This is a from-scratch contour + Tesseract pipeline, not a trained plate-detection model, and it has real limits worth knowing:
@@ -113,7 +125,7 @@ This is a from-scratch contour + Tesseract pipeline, not a trained plate-detecti
 ## 🚀 Setup
 
 <details>
-<summary><b>Local setup</b></summary>
+<summary><b>🔽 Local setup</b></summary>
 <br>
 
 ```bash
@@ -126,7 +138,7 @@ Requires **Tesseract OCR** installed separately (it's a system binary, not a pip
 </details>
 
 <details>
-<summary><b>Docker</b></summary>
+<summary><b>🔽 Docker</b></summary>
 <br>
 
 ```bash
@@ -140,6 +152,14 @@ The included `Dockerfile` installs Tesseract as a system package, so no separate
 
 ---
 
+<div align="center">
+
 ## 👤 Developed by
 
 **[Ayush Gupta](https://github.com/ayushxdev01)**
+
+[![GitHub](https://img.shields.io/badge/GitHub-ayushxdev01-181717?logo=github&logoColor=white)](https://github.com/ayushxdev01)
+
+![footer](https://capsule-render.vercel.app/api?type=waving&color=timeGradient&height=100&section=footer)
+
+</div>
